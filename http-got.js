@@ -7,10 +7,12 @@ const audioUrl = 'https://github.com/Borewit/music-metadata/raw/master/test/samp
 (async () => {
   try {
     // Stream MP3 sample file from GitHub via HTTP
-    const stream = await got.stream(audioUrl);
-    const metadata = await mm.parseStream(stream);
-    stream.destroy();
-    console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+    const stream = await got.stream(audioUrl).on('response', async response => {
+      console.log(response);
+      const metadata = await mm.parseStream(stream, {size: parseInt(response.headers['content-length'])})
+      stream.destroy();
+      console.log(util.inspect(metadata, { showHidden: false, depth: null }));
+    });
   } catch(error) {
     // Oops, something went wrong
     console.error(error.message);
